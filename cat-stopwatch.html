@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>고양이 스톱워치</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', sans-serif;
+    overflow: hidden;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+
+  /* 고양이 얼굴 */
+  .cat-face {
+    position: relative;
+    width: 220px;
+    height: 200px;
+    background: radial-gradient(ellipse at 40% 35%, #f5c842, #e8a020);
+    border-radius: 50% 50% 45% 45%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    animation: catBob 2s ease-in-out infinite;
+  }
+
+  @keyframes catBob {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+  }
+
+  /* 귀 */
+  .ear {
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: -38px;
+  }
+  .ear-left {
+    left: 22px;
+    border-left: 28px solid transparent;
+    border-right: 28px solid transparent;
+    border-bottom: 50px solid #e8a020;
+    filter: drop-shadow(-2px -2px 4px rgba(0,0,0,0.2));
+  }
+  .ear-right {
+    right: 22px;
+    border-left: 28px solid transparent;
+    border-right: 28px solid transparent;
+    border-bottom: 50px solid #e8a020;
+    filter: drop-shadow(2px -2px 4px rgba(0,0,0,0.2));
+  }
+  .ear-inner-left {
+    position: absolute;
+    top: 0; left: 22px;
+    width: 0; height: 0;
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
+    border-bottom: 34px solid #f9a8c9;
+    margin-top: 14px;
+    margin-left: -18px;
+  }
+  .ear-inner-right {
+    position: absolute;
+    top: 0; right: 22px;
+    width: 0; height: 0;
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
+    border-bottom: 34px solid #f9a8c9;
+    margin-top: 14px;
+    margin-right: -18px;
+  }
+
+  /* 눈 */
+  .eyes {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 44px;
+  }
+  .eye {
+    width: 44px;
+    height: 44px;
+    background: radial-gradient(circle at 45% 40%, #7ecfff, #1a8fc1, #0a4a7a);
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 12px rgba(126, 207, 255, 0.6), inset 0 2px 4px rgba(255,255,255,0.3);
+    border: 2px solid rgba(255,255,255,0.2);
+  }
+
+  /* 동공 */
+  .pupil {
+    position: absolute;
+    width: 16px;
+    height: 36px;
+    background: radial-gradient(ellipse at 40% 30%, #333, #000);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease-out;
+    box-shadow: 0 0 4px rgba(0,0,0,0.8);
+  }
+  .pupil::after {
+    content: '';
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    top: 5px;
+    left: 3px;
+  }
+
+  /* 눈 반짝임 */
+  .eye-shine {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 50%;
+    top: 6px;
+    left: 6px;
+    pointer-events: none;
+  }
+
+  /* 코 */
+  .nose {
+    position: absolute;
+    top: 118px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid #e05580;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+  }
+
+  /* 입 */
+  .mouth {
+    position: absolute;
+    top: 128px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 12px;
+    border: none;
+  }
+  .mouth::before, .mouth::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 8px;
+    border-bottom: 2px solid #c04060;
+    border-radius: 0 0 50% 50%;
+  }
+  .mouth::before { left: 3px; }
+  .mouth::after { right: 3px; }
+
+  /* 수염 */
+  .whiskers {
+    position: absolute;
+    top: 110px;
+    width: 100%;
+  }
+  .whisker {
+    position: absolute;
+    height: 1.5px;
+    background: rgba(80,40,0,0.5);
+    border-radius: 1px;
+  }
+  .whisker-l1 { width: 55px; left: -10px; top: 0; transform: rotate(-5deg); }
+  .whisker-l2 { width: 55px; left: -10px; top: 10px; transform: rotate(0deg); }
+  .whisker-l3 { width: 55px; left: -10px; top: 20px; transform: rotate(5deg); }
+  .whisker-r1 { width: 55px; right: -10px; top: 0; transform: rotate(5deg); }
+  .whisker-r2 { width: 55px; right: -10px; top: 10px; transform: rotate(0deg); }
+  .whisker-r3 { width: 55px; right: -10px; top: 20px; transform: rotate(-5deg); }
+
+  /* 볼 */
+  .cheek {
+    position: absolute;
+    width: 36px;
+    height: 20px;
+    background: rgba(255, 150, 150, 0.35);
+    border-radius: 50%;
+    top: 108px;
+  }
+  .cheek-left { left: 22px; }
+  .cheek-right { right: 22px; }
+
+  /* 스톱워치 디스플레이 */
+  .stopwatch {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 24px;
+    padding: 28px 40px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    min-width: 320px;
+  }
+
+  .time-display {
+    font-size: 3.2rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 3px;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 20px rgba(126, 207, 255, 0.8);
+    font-family: 'Courier New', monospace;
+  }
+
+  .milliseconds {
+    font-size: 1.8rem;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .laps-display {
+    margin-top: 12px;
+    max-height: 120px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.2) transparent;
+  }
+
+  .lap-item {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5);
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* 버튼 */
+  .buttons {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .btn {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+    outline: none;
+  }
+
+  .btn-start {
+    background: linear-gradient(135deg, #56d275, #2ecc71);
+    color: white;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+  }
+  .btn-start:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46, 204, 113, 0.5); }
+  .btn-start:active { transform: translateY(0); }
+
+  .btn-stop {
+    background: linear-gradient(135deg, #ff6b7a, #e74c3c);
+    color: white;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+  }
+  .btn-stop:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(231, 76, 60, 0.5); }
+
+  .btn-reset {
+    background: linear-gradient(135deg, #a0a0c0, #7f8c8d);
+    color: white;
+    box-shadow: 0 4px 15px rgba(127, 140, 141, 0.4);
+  }
+  .btn-reset:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(127, 140, 141, 0.5); }
+
+  .btn-lap {
+    background: linear-gradient(135deg, #f5c842, #f39c12);
+    color: white;
+    box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+  }
+  .btn-lap:hover { transform: translateY(-2px); }
+
+  /* 꼬리 */
+  .tail {
+    position: absolute;
+    bottom: -30px;
+    right: -40px;
+    width: 80px;
+    height: 20px;
+    border-bottom: 14px solid #e8a020;
+    border-right: 14px solid transparent;
+    border-radius: 0 0 80px 0;
+    transform-origin: left center;
+    animation: tailWag 1.5s ease-in-out infinite;
+  }
+
+  @keyframes tailWag {
+    0%, 100% { transform: rotate(-10deg); }
+    50% { transform: rotate(20deg); }
+  }
+
+  .running-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #2ecc71;
+    display: inline-block;
+    margin-right: 8px;
+    animation: blink 1s infinite;
+  }
+  .stopped-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #e74c3c;
+    display: inline-block;
+    margin-right: 8px;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .status-text {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 눈 깜빡임 */
+  .blink-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #e8a020;
+    border-radius: 50%;
+    top: 0; left: 0;
+    transform: scaleY(0);
+    transform-origin: center;
+    transition: transform 0.08s;
+    z-index: 10;
+  }
+  .eye.blinking .blink-overlay {
+    transform: scaleY(1);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- 고양이 얼굴 -->
+  <div class="cat-face" id="catFace">
+    <div class="ear ear-left"></div>
+    <div class="ear ear-right"></div>
+    <div class="ear-inner-left"></div>
+    <div class="ear-inner-right"></div>
+
+    <div class="eyes">
+      <div class="eye" id="eyeLeft">
+        <div class="pupil" id="pupilLeft"></div>
+        <div class="eye-shine"></div>
+        <div class="blink-overlay"></div>
+      </div>
+      <div class="eye" id="eyeRight">
+        <div class="pupil" id="pupilRight"></div>
+        <div class="eye-shine"></div>
+        <div class="blink-overlay"></div>
+      </div>
+    </div>
+
+    <div class="cheek cheek-left"></div>
+    <div class="cheek cheek-right"></div>
+    <div class="nose"></div>
+    <div class="mouth"></div>
+
+    <div class="whiskers">
+      <div class="whisker whisker-l1"></div>
+      <div class="whisker whisker-l2"></div>
+      <div class="whisker whisker-l3"></div>
+      <div class="whisker whisker-r1"></div>
+      <div class="whisker whisker-r2"></div>
+      <div class="whisker whisker-r3"></div>
+    </div>
+
+    <div class="tail"></div>
+  </div>
+
+  <!-- 스톱워치 -->
+  <div class="stopwatch">
+    <div class="status-text" id="statusText">
+      <span class="stopped-indicator" id="indicator"></span>
+      <span id="statusLabel">대기 중</span>
+    </div>
+    <div class="time-display">
+      <span id="hours">00</span>:<span id="minutes">00</span>:<span id="seconds">00</span><span class="milliseconds">.<span id="ms">00</span></span>
+    </div>
+    <div class="laps-display" id="lapsDisplay"></div>
+    <div class="buttons">
+      <button class="btn btn-start" id="btnStart" onclick="startStop()">시작</button>
+      <button class="btn btn-lap" id="btnLap" onclick="addLap()" disabled>랩</button>
+      <button class="btn btn-reset" onclick="reset()">초기화</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let startTime = 0;
+  let elapsedTime = 0;
+  let timerInterval = null;
+  let running = false;
+  let laps = [];
+  let lapCount = 0;
+
+  // 눈 움직임 관련
+  const eyeLeft = document.getElementById('eyeLeft');
+  const eyeRight = document.getElementById('eyeRight');
+  const pupilLeft = document.getElementById('pupilLeft');
+  const pupilRight = document.getElementById('pupilRight');
+
+  // 눈이 초침을 따라가도록
+  function updateEyesForTime(totalMs) {
+    const sec = (totalMs / 1000) % 60;
+    // 초침 각도 (0~60초 → 0~360도)
+    const angle = (sec / 60) * Math.PI * 2 - Math.PI / 2;
+    const radius = 9;
+    const dx = Math.cos(angle) * radius;
+    const dy = Math.sin(angle) * radius;
+
+    pupilLeft.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    pupilRight.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+  }
+
+  // 마우스/터치로 눈 움직이기 (정지 시)
+  document.addEventListener('mousemove', (e) => {
+    if (running) return;
+    const face = document.getElementById('catFace');
+    const rect = face.getBoundingClientRect();
+    const faceCx = rect.left + rect.width / 2;
+    const faceCy = rect.top + rect.height / 2;
+
+    [
+      { eye: eyeLeft, pupil: pupilLeft, ox: -44 },
+      { eye: eyeRight, pupil: pupilRight, ox: 44 }
+    ].forEach(({ eye, pupil, ox }) => {
+      const eyeRect = eye.getBoundingClientRect();
+      const ex = eyeRect.left + eyeRect.width / 2;
+      const ey = eyeRect.top + eyeRect.height / 2;
+      const dx = e.clientX - ex;
+      const dy = e.clientY - ey;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const maxR = 10;
+      const r = Math.min(dist / 5, maxR);
+      const nx = (dx / dist) * r || 0;
+      const ny = (dy / dist) * r || 0;
+      pupil.style.transform = `translate(calc(-50% + ${nx}px), calc(-50% + ${ny}px))`;
+    });
+  });
+
+  // 눈 깜빡임
+  function blink() {
+    eyeLeft.classList.add('blinking');
+    eyeRight.classList.add('blinking');
+    setTimeout(() => {
+      eyeLeft.classList.remove('blinking');
+      eyeRight.classList.remove('blinking');
+    }, 150);
+  }
+
+  function scheduleNextBlink() {
+    const delay = 2000 + Math.random() * 4000;
+    setTimeout(() => {
+      blink();
+      scheduleNextBlink();
+    }, delay);
+  }
+  scheduleNextBlink();
+
+  // 시간 포맷
+  function formatTime(ms) {
+    const h = Math.floor(ms / 3600000);
+    const m = Math.floor((ms % 3600000) / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    const cs = Math.floor((ms % 1000) / 10);
+    return {
+      h: String(h).padStart(2, '0'),
+      m: String(m).padStart(2, '0'),
+      s: String(s).padStart(2, '0'),
+      cs: String(cs).padStart(2, '0')
+    };
+  }
+
+  function updateDisplay(ms) {
+    const t = formatTime(ms);
+    document.getElementById('hours').textContent = t.h;
+    document.getElementById('minutes').textContent = t.m;
+    document.getElementById('seconds').textContent = t.s;
+    document.getElementById('ms').textContent = t.cs;
+    updateEyesForTime(ms);
+  }
+
+  function startStop() {
+    if (!running) {
+      // 시작
+      startTime = Date.now() - elapsedTime;
+      timerInterval = setInterval(() => {
+        elapsedTime = Date.now() - startTime;
+        updateDisplay(elapsedTime);
+      }, 10);
+      running = true;
+      document.getElementById('btnStart').textContent = '일시정지';
+      document.getElementById('btnStart').className = 'btn btn-stop';
+      document.getElementById('btnLap').disabled = false;
+      document.getElementById('indicator').className = 'running-indicator';
+      document.getElementById('statusLabel').textContent = '측정 중';
+    } else {
+      // 일시정지
+      clearInterval(timerInterval);
+      running = false;
+      document.getElementById('btnStart').textContent = '계속';
+      document.getElementById('btnStart').className = 'btn btn-start';
+      document.getElementById('btnLap').disabled = true;
+      document.getElementById('indicator').className = 'stopped-indicator';
+      document.getElementById('statusLabel').textContent = '일시정지';
+      // 동공 중앙으로
+      pupilLeft.style.transform = 'translate(-50%, -50%)';
+      pupilRight.style.transform = 'translate(-50%, -50%)';
+    }
+  }
+
+  function addLap() {
+    lapCount++;
+    const t = formatTime(elapsedTime);
+    const lapTime = `${t.h}:${t.m}:${t.s}.${t.cs}`;
+    laps.unshift({ num: lapCount, time: lapTime });
+    const div = document.createElement('div');
+    div.className = 'lap-item';
+    div.innerHTML = `<span>랩 ${lapCount}</span><span>${lapTime}</span>`;
+    const display = document.getElementById('lapsDisplay');
+    display.insertBefore(div, display.firstChild);
+    blink();
+  }
+
+  function reset() {
+    clearInterval(timerInterval);
+    running = false;
+    elapsedTime = 0;
+    lapCount = 0;
+    laps = [];
+    updateDisplay(0);
+    document.getElementById('btnStart').textContent = '시작';
+    document.getElementById('btnStart').className = 'btn btn-start';
+    document.getElementById('btnLap').disabled = true;
+    document.getElementById('indicator').className = 'stopped-indicator';
+    document.getElementById('statusLabel').textContent = '대기 중';
+    document.getElementById('lapsDisplay').innerHTML = '';
+    pupilLeft.style.transform = 'translate(-50%, -50%)';
+    pupilRight.style.transform = 'translate(-50%, -50%)';
+  }
+</script>
+</body>
+</html>
