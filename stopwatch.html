@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>스탑워치</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #1a1a2e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .container {
+      text-align: center;
+      color: #eee;
+    }
+
+    .display {
+      font-size: 80px;
+      font-weight: 200;
+      letter-spacing: 4px;
+      font-variant-numeric: tabular-nums;
+      color: #e0e0ff;
+      text-shadow: 0 0 30px rgba(120, 120, 255, 0.4);
+      margin-bottom: 12px;
+    }
+
+    .ms {
+      font-size: 40px;
+      color: #9090cc;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin: 40px 0 32px;
+    }
+
+    button {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 2px solid;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 1px;
+    }
+
+    #btn-start {
+      background: transparent;
+      border-color: #5c5cff;
+      color: #8888ff;
+    }
+    #btn-start:hover { background: rgba(92,92,255,0.15); }
+    #btn-start.running {
+      border-color: #ff5c5c;
+      color: #ff8888;
+    }
+    #btn-start.running:hover { background: rgba(255,92,92,0.15); }
+
+    #btn-lap {
+      background: transparent;
+      border-color: #444466;
+      color: #666688;
+    }
+    #btn-lap:not(:disabled):hover { background: rgba(255,255,255,0.06); border-color: #8888aa; color: #aaaacc; }
+    #btn-lap:disabled { opacity: 0.3; cursor: default; }
+
+    #btn-reset {
+      background: transparent;
+      border-color: #444466;
+      color: #666688;
+    }
+    #btn-reset:hover { background: rgba(255,255,255,0.06); border-color: #8888aa; color: #aaaacc; }
+
+    .laps {
+      max-height: 260px;
+      overflow-y: auto;
+      width: 360px;
+      margin: 0 auto;
+    }
+
+    .laps::-webkit-scrollbar { width: 4px; }
+    .laps::-webkit-scrollbar-track { background: transparent; }
+    .laps::-webkit-scrollbar-thumb { background: #333355; border-radius: 2px; }
+
+    .lap-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-bottom: 1px solid #22223a;
+      font-size: 15px;
+      color: #9090bb;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .lap-item:first-child { color: #ccccee; }
+
+    .lap-item .lap-num { color: #555577; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="display">
+      <span id="h">00</span>:<span id="m">00</span>:<span id="s">00</span><span class="ms">.<span id="ms">00</span></span>
+    </div>
+
+    <div class="buttons">
+      <button id="btn-lap" disabled>랩</button>
+      <button id="btn-start">시작</button>
+      <button id="btn-reset">초기화</button>
+    </div>
+
+    <div class="laps" id="laps"></div>
+  </div>
+
+  <script>
+    let startTime = 0;
+    let elapsed = 0;
+    let rafId = null;
+    let running = false;
+    let lapStart = 0;
+    let lapCount = 0;
+
+    const elH  = document.getElementById('h');
+    const elM  = document.getElementById('m');
+    const elS  = document.getElementById('s');
+    const elMs = document.getElementById('ms');
+    const btnStart = document.getElementById('btn-start');
+    const btnLap   = document.getElementById('btn-lap');
+    const btnReset = document.getElementById('btn-reset');
+    const lapsEl   = document.getElementById('laps');
+
+    function pad(n, d = 2) { return String(n).padStart(d, '0'); }
+
+    function render(ms) {
+      const h   = Math.floor(ms / 3600000);
+      const m   = Math.floor((ms % 3600000) / 60000);
+      const s   = Math.floor((ms % 60000) / 1000);
+      const cs  = Math.floor((ms % 1000) / 10);
+      elH.textContent  = pad(h);
+      elM.textContent  = pad(m);
+      elS.textContent  = pad(s);
+      elMs.textContent = pad(cs);
+    }
+
+    function tick() {
+      elapsed = Date.now() - startTime;
+      render(elapsed);
+      rafId = requestAnimationFrame(tick);
+    }
+
+    btnStart.addEventListener('click', () => {
+      if (!running) {
+        startTime = Date.now() - elapsed;
+        lapStart  = lapStart === 0 ? startTime : lapStart;
+        rafId = requestAnimationFrame(tick);
+        running = true;
+        btnStart.textContent = '정지';
+        btnStart.classList.add('running');
+        btnLap.disabled = false;
+      } else {
+        cancelAnimationFrame(rafId);
+        running = false;
+        btnStart.textContent = '시작';
+        btnStart.classList.remove('running');
+        btnLap.disabled = true;
+      }
+    });
+
+    btnLap.addEventListener('click', () => {
+      if (!running) return;
+      lapCount++;
+      const now     = Date.now();
+      const lapTime = now - lapStart;
+      lapStart = now;
+
+      const fmt = ms => {
+        const m  = Math.floor(ms / 60000);
+        const s  = Math.floor((ms % 60000) / 1000);
+        const cs = Math.floor((ms % 1000) / 10);
+        return `${pad(m)}:${pad(s)}.${pad(cs)}`;
+      };
+
+      const item = document.createElement('div');
+      item.className = 'lap-item';
+      item.innerHTML = `<span class="lap-num">랩 ${pad(lapCount)}</span><span>${fmt(lapTime)}</span><span>${fmt(elapsed)}</span>`;
+      lapsEl.prepend(item);
+    });
+
+    btnReset.addEventListener('click', () => {
+      cancelAnimationFrame(rafId);
+      running = false;
+      elapsed = 0;
+      lapStart = 0;
+      lapCount = 0;
+      render(0);
+      btnStart.textContent = '시작';
+      btnStart.classList.remove('running');
+      btnLap.disabled = true;
+      lapsEl.innerHTML = '';
+    });
+  </script>
+</body>
+</html>
